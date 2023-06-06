@@ -5,6 +5,8 @@ from torchvision import datasets
 from torchvision.transforms import ToTensor
 
 torch.manual_seed(1066)
+
+
 # TODO ADD GPU STUFF
 # TODO ADD LOG FILE
 # TODO ADD VISUALIZATION
@@ -19,13 +21,10 @@ class BaselineModel(nn.Module):
         self.net = nn.Sequential(  # three layers before output
             nn.LazyLinear(512),
             nn.ReLU(),
-            nn.Dropout(),
             nn.LazyLinear(512),
             nn.ReLU(),
-            nn.Dropout(),
             nn.LazyLinear(512),
             nn.ReLU(),
-            nn.Dropout(),
             nn.LazyLinear(10)
         )
 
@@ -73,14 +72,14 @@ if __name__ == "__main__":
     # https://pytorch.org/tutorials/beginner/basics/optimization_tutorial.html
 
     training_data = datasets.FashionMNIST(
-        root="data",
+        root=r"C:\Users\pjmcc\PycharmProjects\dropoutResearch\data",
         train=True,
         download=True,
         transform=ToTensor()
     )
 
     test_data = datasets.FashionMNIST(
-        root="data",
+        root=r"C:\Users\pjmcc\PycharmProjects\dropoutResearch\data",
         train=False,
         download=True,
         transform=ToTensor()
@@ -104,7 +103,7 @@ if __name__ == "__main__":
     lr = 0.001
     epochs = 10
     loss_fn = nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(base_model.parameters(),lr)
+    optimizer = torch.optim.SGD(base_model.parameters(), lr)
 
     for i in range(epochs):
         print(f"epoch {i} \n")

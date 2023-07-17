@@ -1,2 +1,2 @@
 # dropoutResearch
-What are the effect of applying basic RL techniques to dropout in feed-forward nn? 
+What if the probabilities in a dropout layer were altered with respect to the network's performance?

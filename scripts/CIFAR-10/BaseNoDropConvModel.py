@@ -2,17 +2,27 @@ import torch
 from torch import nn
 
 
-class BaseConvModel(nn.Module): # Uses LeNet architecture
+class BaseNoDropConvModel(nn.Module): # (tries to) copy from Morerio et al (CNN..1? I think? Their code doesn't match their paper)
     def __init__(self):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Conv2d(3, 64, 5, 2, padding="same"),
-            nn.MaxPool2d(3, 2),
-            nn.Conv2d(3, 3, 5, 2, 1),
-            nn.MaxPool2d(3, 2),
-            nn.Conv2d(3, 3, 5, 2, 1),
-            nn.MaxPool2d(3, 2),
-            nn.Linear(5 * 5 * 3, 10)
+            # Drop
+            nn.Conv2d(3, 96, 5, 1, padding="same"),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),  # 32 - 2/2 +1 = 16 (floor division)
+            # drop
+            nn.Conv2d(96, 128, 5, 1, padding="same"),  # 16
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),  # 8
+            nn.Flatten(),
+            # drop
+            nn.Linear(8 * 8 * 128, 2048),
+            nn.ReLU(),
+            # drop
+            nn.Linear(2048, 1024),
+            nn.ReLU(),
+            # drop
+            nn.Linear(1024, 10)
         )
 
     def forward(self, X):

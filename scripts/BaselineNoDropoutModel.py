@@ -10,21 +10,16 @@ class BaselineNoDropoutModel(nn.Module):
         super().__init__()
         self.flatten = nn.Flatten()
         self.net = nn.Sequential(  # three layers before output
-            nn.Linear(784, 512),
+            nn.Linear(784, 2000),
             nn.ReLU(),
-            nn.Linear(512, 512),
+            nn.Linear(2000, 2000),
             nn.ReLU(),
-            nn.Linear(512, 512),
-            nn.ReLU(),
-            nn.Linear(512, 10)
+            nn.Linear(2000, 10)
         )
 
     def forward(self, X):
         x = self.flatten(X)
         logits = self.net(x)
         return logits
-
-    # heavily borrows from pytorch tutorial
-
 
 

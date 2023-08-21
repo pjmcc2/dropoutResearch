@@ -1,10 +1,9 @@
-import torch
 from torch import nn
 import numpy as np
 from torch.nn.functional import dropout
 
 
-class CurrDropConvModel(nn.Module):
+class HybridConvModel(nn.Module):
     def __init__(self, keep_p_inp, keep_p_conv, keep_p_out, gamma):
         super().__init__()
         self.flatten = nn.Flatten()
@@ -19,20 +18,27 @@ class CurrDropConvModel(nn.Module):
         self.p_conv = keep_p_conv
         self.p_out = keep_p_out
         self.gamma = gamma
+        self.t = 1
 
-
-    def forward(self, X, time_step):
-        dout0 = dropout(X, self.get_prob(self.p_inp, time_step), training=self.training)
+    def forward(self, X):
+        dout0 = dropout(X, self.get_prob(self.p_inp), training=self.training)
         convtrio1 = self.pool(self.relu(self.conv_inp(dout0)))
-        dout1 = dropout(convtrio1, self.get_prob(self.p_conv, time_step), training=self.training)
+        dout1 = dropout(convtrio1, self.get_prob(self.p_conv), training=self.training)
         convtrio2 = self.pool(self.relu(self.conv_layer2(dout1)))
-        dout2 = dropout(self.flatten(convtrio2), self.get_prob(self.p_out, time_step), training=self.training)
+        dout2 = dropout(self.flatten(convtrio2), self.get_prob(self.p_out), training=self.training)
         linear1 = self.relu(self.linear_layer1(dout2))
-        dout3 = dropout(linear1, self.get_prob(self.p_out, time_step), training=self.training)
+        dout3 = dropout(linear1, self.get_prob(self.p_out), training=self.training)
         linear2 = self.relu(self.linear_layer2(dout3))
-        dout4 = dropout(linear2, self.get_prob(self.p_out, time_step), training=self.training)
+        dout4 = dropout(linear2, self.get_prob(self.p_out), training=self.training)
         logits = self.output_layer(dout4)
         return logits
 
-    def get_prob(self, init_prob, t):
-        return 1 - ((1. - init_prob) * np.exp(-self.gamma * t) + init_prob)
+    def get_prob(self, init_prob):
+        return 1 - ((1. - init_prob) * np.exp(-self.gamma * self.t) + init_prob)
+
+    def update_probs(self, corr):
+        batch_size = len(corr)
+        corr_distance = 2 * corr.sum() - batch_size
+        self.t += 1 if corr_distance > 0 else -1
+        if self.t <= 0:
+            self.t = 1

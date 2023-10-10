@@ -2,19 +2,17 @@ import torch
 from torch import nn
 
 
-# TODO TRIPLE CHECK THE DOCS FOR EACH STEP AND WRITE IT OUT. I WANT...
-# TODO ...TO KNOW WHAT EVERYTHING DOES FOR MY WRITE UP.
 
 class BaselineNoDropoutModel(nn.Module):
-    def __init__(self):
+    def __init__(self, in_size=784, out_size=10):
         super().__init__()
         self.flatten = nn.Flatten()
-        self.net = nn.Sequential(  # three layers before output
-            nn.Linear(784, 2000),
+        self.net = nn.Sequential(
+            nn.Linear(in_size, 2000),
             nn.ReLU(),
             nn.Linear(2000, 2000),
             nn.ReLU(),
-            nn.Linear(2000, 10)
+            nn.Linear(2000, out_size)
         )
 
     def forward(self, X):
